@@ -23,7 +23,7 @@ const Single = ({columns}) => {
             <h1 className="title">Information</h1>
             <div className="item">
               <img
-                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb8rE-7iGP9zfytDxZNubAs0TcZg9TeE6o2w&s"
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb8rE-7iGP9zfytDxZNubAs0TcZg9TeE6o2w&sq"
                 alt=""
                 className="itemImg"
               />
