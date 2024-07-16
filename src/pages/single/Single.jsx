@@ -2,66 +2,85 @@ import "./single.scss";
 import Sidebar from "../../components/sidebar/Sidebar";
 import Navbar from "../../components/navbar/Navbar";
 import Chart from "../../components/chart/Chart";
-import List from "../../components/datatable/Datatable";
 import Datatable from "../../components/datatable/Datatable";
+import Mydatatable from "../../components/mydatatable/Mydatatable";
 import { useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../../firebase";
 
 const Single = ({columns}) => {
-  console.log(columns);
   const location = useLocation();
   const id = location.pathname.split('/')[2];
+  const type = location.pathname.split('/')[1]
+  const [data, setData] = useState({})
 
+  useEffect(() => {
+    const fetchData = async () => {  
+      const docRef  = doc(db, type, id);
+      const docSnap  = await getDoc(docRef);      
+      const docSnapData = docSnap.data();
+      
+      if (docSnap.exists()) { 
+        switch (type) {
+          case "users":
+            setData({...docSnapData, detailName : docSnapData.displayName}); 
+            break; 
+          case "products":
+            setData({...docSnapData, detailName : docSnapData.title}); 
+            break; 
+            case "categories":
+            setData({...docSnapData, detailName : docSnapData.name}); 
+            break;
+            default: 
+            break;
+        } 
+      }   
+    };
+    fetchData();  
+  }, []);   
 
+  const AllKeys = Object.keys(data); 
+  const keys = AllKeys.filter(e => e !== 'timeStamp' && e !== 'img' && e !== 'password' && e !== 'displayName' && e !== 'title' && e !== 'name' && e !== 'detailName')
+  
   return (
     <div className="single">
       <Sidebar />
       <div className="singleContainer">
         <Navbar />
         <div className="top">
-          <div className="left">
-            <div className="editButton">Edit</div>
-            <h1 className="title">Information</h1>
-            <div className="item">
-              <img
-                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb8rE-7iGP9zfytDxZNubAs0TcZg9TeE6o2w&sq"
-                alt=""
-                className="itemImg"
-              />
-              <div className="details">
-                <h1 className="itemTitle">NICO ANANDA</h1>
-                <div className="detailItem">
-                  <span className="itemKey">ID:</span>
-                  <span className="itemValue">{id}</span>
-                </div>
-                <div className="detailItem">
-                  <span className="itemKey">Email:</span>
-                  <span className="itemValue">admin@store</span>
-                </div>
-                <div className="detailItem">
-                  <span className="itemKey">Phone:</span>
-                  <span className="itemValue">+111202113653</span>
-                </div>
-                <div className="detailItem">
-                  <span className="itemKey">Address:</span>
-                  <span className="itemValue">
-                    Semarang
-                  </span>
-                </div>
-                <div className="detailItem">
-                  <span className="itemKey">Country:</span>
-                  <span className="itemValue">Indonesia</span>
-                </div>
+        <div className="left">
+        <div className="editButton">Detail</div>
+        <h1 className="title">Information</h1>
+        <div className="item">
+          <img
+            src={data.img}
+            alt=""
+            className="itemImg"
+          />              
+          <div className="details">
+            <h1 className="itemTitle">
+              {data.detailName}
+            </h1> 
+      
+            {keys.map((key) => (
+              <div className="detailItem" key={key}>
+                <span className="itemKey">{key}:</span>
+                <span className="itemValue">{data[key]}</span>
               </div>
-            </div>
+            ))} 
+      
           </div>
+        </div>
+      </div>
           <div className="right">
             <Chart aspect={3 / 1} type="order" />
           </div>
         </div>
         <div className="bottom">
           <h1 className="title">Last Transactions</h1>
-          <Datatable columns={columns}/>
-          <List />
+          <Datatable columns={columns} />
+          <Mydatatable columns={columns}/>
         </div>
       </div>
     </div>
